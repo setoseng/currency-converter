@@ -28,6 +28,12 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "854612df-6e2c-49ca-9d5c-91676283ba76"
+      }
+    },
+    "owner": "setoseng"
   }
 }
