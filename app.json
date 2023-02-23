@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "currency-converter",
+    "name": "currenct-converter",
     "slug": "currency-converter",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -31,7 +31,7 @@
     },
     "extra": {
       "eas": {
-        "projectId": "854612df-6e2c-49ca-9d5c-91676283ba76"
+        "projectId": "f2d24df5-7c35-4686-a170-ebf8e8cbd01f"
       }
     },
     "owner": "setoseng"

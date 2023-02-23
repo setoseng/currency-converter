@@ -1,20 +1,43 @@
 import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  ActivityIndicator,
+  ImageBackground,
+} from 'react-native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import {
+  Image,
+} from '@rneui/themed'
+
+const IMG_URL = require('./assets/home.png')
 
 export default function App() {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
+    <SafeAreaProvider>
+      <ImageBackground
+        source={IMG_URL}
+      />
       <StatusBar style="auto" />
-    </View>
+    </SafeAreaProvider>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: 'transparent',
     alignItems: 'center',
-    justifyContent: 'center',
   },
+  imageContainer: {
+    aspectRatio: 1,
+    width: '100%',
+    flex: 1,
+  },
+  image: {
+    width: 320,
+    height: 440,
+    borderRadius: 18,
+  }
 });
