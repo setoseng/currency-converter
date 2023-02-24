@@ -1,43 +1,45 @@
-import { StatusBar } from 'expo-status-bar';
-import {
-  StyleSheet,
-  Text,
-  View,
-  ActivityIndicator,
-  ImageBackground,
-} from 'react-native';
-import { SafeAreaProvider } from 'react-native-safe-area-context';
-import {
-  Image,
-} from '@rneui/themed'
+import * as React from 'react'
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { Image } from '@rneui/base';
 
-const IMG_URL = require('./assets/home.png')
+import HomeScreen from './screens/HomeScreen';
+import MainScreen from './screens/MainScreen';
+
+const Stack = createNativeStackNavigator();
+const bgUrl = require('./assets/bg.png');
+
+const headerOption = {
+  headerShown: true,
+  title: 'Converter',
+  headerStyle:  {
+    backgroundColor: '#2DBBFE',
+  },
+  headerTitleStyle: {
+    color: '#FFF'
+  },
+  headerTintColor: '#FFF',
+}
 
 export default function App() {
   return (
-    <SafeAreaProvider>
-      <ImageBackground
-        source={IMG_URL}
-      />
-      <StatusBar style="auto" />
-    </SafeAreaProvider>
+    <NavigationContainer>
+      <Stack.Navigator>
+        <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
+        <Stack.Screen
+          name="Main"
+          component={MainScreen}
+          options={{
+            title: 'Converter',
+            headerTransparent: true,
+            headerTitleStyle: {
+              color: '#FFF'
+            },
+            headerTintColor: '#FFF',
+          }}
+        />
+      </Stack.Navigator>
+    </NavigationContainer>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: 'transparent',
-    alignItems: 'center',
-  },
-  imageContainer: {
-    aspectRatio: 1,
-    width: '100%',
-    flex: 1,
-  },
-  image: {
-    width: 320,
-    height: 440,
-    borderRadius: 18,
-  }
-});
