@@ -6,6 +6,8 @@ import { Image } from '@rneui/base';
 import HomeScreen from './screens/HomeScreen';
 import MainScreen from './screens/MainScreen';
 
+import { CurrencyProvider } from './context/currency';
+
 const Stack = createNativeStackNavigator();
 const bgUrl = require('./assets/bg.png');
 
@@ -23,23 +25,25 @@ const headerOption = {
 
 export default function App() {
   return (
-    <NavigationContainer>
-      <Stack.Navigator>
-        <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
-        <Stack.Screen
-          name="Main"
-          component={MainScreen}
-          options={{
-            title: 'Converter',
-            headerTransparent: true,
-            headerTitleStyle: {
-              color: '#FFF'
-            },
-            headerTintColor: '#FFF',
-          }}
-        />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <CurrencyProvider>
+      <NavigationContainer>
+        <Stack.Navigator>
+          <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
+          <Stack.Screen
+            name="Main"
+            component={MainScreen}
+            options={{
+              title: 'Converter',
+              headerTransparent: true,
+              headerTitleStyle: {
+                color: '#FFF'
+              },
+              headerTintColor: '#FFF',
+            }}
+          />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </CurrencyProvider>
   );
 }
 
