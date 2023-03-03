@@ -21,6 +21,8 @@ const myHeaders = new Headers();
 myHeaders.append("apikey", "Y8EjkMaRIbyKPNLNTUR3huMYNwhcc1Xq");
 
 const API_URL = `Y8EjkMaRIbyKPNLNTUR3huMYNwhcc1Xq`;
+const BASE_URL = 'https://api.exchangeratesapi.io/latest';
+
 const requestOptions = {
   method: 'GET',
   redirect: 'follow',
@@ -29,21 +31,26 @@ const requestOptions = {
 
 const MainScreen = () => {
   const { getLatestData, data } = useContext(CurrencyContext);
+  const [currencyOptions, setCurrencyOptions] = useState([])
   const [isInputting, setIsInputting] = useState(false);
   const [toOpen, setToOpen] = useState(false);
   const [toOption, setToOption] = useState('VND');
-  const [toCurrency, setToCurrency] = useState(1);
+  const [toCurrency, setToCurrency] = useState()
+  const [exchangeRate, setExchangeRate] = useState()
   const [fromOpen, setFromOpen] = useState(false);
   const [fromOption, setFromOption] = useState('USD');
-  const [fromCurrency, setFromCurrency] = useState(1);
+  const [fromCurrency, setFromCurrency] = useState()
   const [isRequesting, setisRequesting] = useState(false);
-  const [conversionRate, setConversionRate] = useState(0);
+  const [amount, setAmount] = useState(1)
+  const [amountInFromCurrency, setAmountInFromCurrency] = useState(true)
+  
   const [items, setItems] = useState([
     {label: 'USD', value: 'USD'},
     {label: 'VND', value: 'VND'}
   ]);
 
-  let toAmount, fromAmount;
+
+  let toAmount, fromAmount
   if (amountInFromCurrency) {
     fromAmount = amount
     toAmount = amount * exchangeRate
@@ -52,25 +59,37 @@ const MainScreen = () => {
     fromAmount = amount / exchangeRate
   }
 
-  const requestCurrencyData = async () => {
-    //getLatestData(fromValue)
-    //setFromAmount(1)
-    //setToAmount(data.rates[toValue])
-    setToAmount(fromAmount * conversionRate);
-  };
-
   useEffect(() => {
-    //requestCurrencyData({to: 'VND', from: 'USD', amount: '120'})
-    if(data !== null) {
-      setFromAmount(1)
-      setToAmount(data.rates[toOption])
-      setConversionRate(data.rates[toOption])
-    }
+    fetch("https://api.apilayer.com/exchangerates_data/latest?&base=USD", requestOptions)
+      .then(res => res.json())
+      .then(data => {
+        const firstCurrency = Object.keys(data.rates)[0]
+        setCurrencyOptions([data.base, ...Object.keys(data.rates)]);
+        setFromCurrency(data.base);
+        setToCurrency(firstCurrency);
+        setExchangeRate(data.rates[firstCurrency]);
+      })
   }, []);
 
-  const handleToAmount = (value) => setToAmount(value);
+  useEffect(() => {
+    if (fromCurrency != null && toCurrency != null) {
+      fetch(`https://api.apilayer.com/exchangerates_data/convert?to=${toCurrency}&from=${fromCurrency}&amount=${amount}`, requestOptions)
+        .then(res => res.json())
+        .then(data => {
+          setExchangeRate(data.info.rate);
+        })
+    }
+  }, [fromCurrency, toCurrency]);
 
-  const handleFromAmount = (value) => setFromAmount(value);  
+  const handleFromAmount = (value) => {
+    setAmount(value)
+    setAmountInFromCurrency(true)
+  };
+
+  const handleToAmount = (value) => {
+    setAmount(value);
+    setAmountInFromCurrency(false);
+  };
 
   return (
     <SafeAreaProvider>
@@ -84,7 +103,7 @@ const MainScreen = () => {
             <View style={tw`flex-row my-8 mx-10 justify-between items-end`}>
               <DropDownPicker
                 open={fromOpen}
-                value={fromOption}
+                value={currencyOptions}
                 items={items}
                 setOpen={setFromOpen}
                 setValue={setFromOption}
@@ -123,7 +142,7 @@ const MainScreen = () => {
             <View style={tw`flex-row my-8 mx-10 justify-between items-end`}>
               <DropDownPicker
                 open={toOpen}
-                value={toOption}
+                value={currencyOptions}
                 items={items}
                 setOpen={setToOpen}
                 setValue={setToOption}
@@ -147,7 +166,7 @@ const MainScreen = () => {
               />
             </View>
           </View>
-          <Button
+          {/* <Button
             title={"Convert"}
             textStyle={tw`text-white`}
             containerStyle={tw`flex-1 mx-auto mt-10`}
@@ -155,7 +174,7 @@ const MainScreen = () => {
             onPress={requestCurrencyData}
             loading={isRequesting}
             disabled={isRequesting}
-          />
+          /> */}
           { isInputting && 
             <ImageBackground
               source={overlayImg}
