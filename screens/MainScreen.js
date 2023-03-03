@@ -28,36 +28,45 @@ const requestOptions = {
 };
 
 const MainScreen = () => {
-  const { getLatestData, data } = useContext(CurrencyContext)
+  const { getLatestData, data } = useContext(CurrencyContext);
   const [isInputting, setIsInputting] = useState(false);
   const [toOpen, setToOpen] = useState(false);
-  const [toValue, setToValue] = useState('VND');
-  const [toAmount, setToAmount] = useState(1);
+  const [toOption, setToOption] = useState('VND');
+  const [toCurrency, setToCurrency] = useState(1);
   const [fromOpen, setFromOpen] = useState(false);
-  const [fromValue, setFromValue] = useState('USD');
-  const [fromAmount, setFromAmount] = useState(1);
-  const [isRequesting, setisRequesting] = useState(false)
-  const [conversionRate, setConversionRate] = useState(0)
+  const [fromOption, setFromOption] = useState('USD');
+  const [fromCurrency, setFromCurrency] = useState(1);
+  const [isRequesting, setisRequesting] = useState(false);
+  const [conversionRate, setConversionRate] = useState(0);
   const [items, setItems] = useState([
     {label: 'USD', value: 'USD'},
     {label: 'VND', value: 'VND'}
   ]);
 
+  let toAmount, fromAmount;
+  if (amountInFromCurrency) {
+    fromAmount = amount
+    toAmount = amount * exchangeRate
+  } else {
+    toAmount = amount
+    fromAmount = amount / exchangeRate
+  }
+
   const requestCurrencyData = async () => {
     //getLatestData(fromValue)
     //setFromAmount(1)
     //setToAmount(data.rates[toValue])
-    setToAmount(fromAmount * conversionRate)
-  }
+    setToAmount(fromAmount * conversionRate);
+  };
 
   useEffect(() => {
     //requestCurrencyData({to: 'VND', from: 'USD', amount: '120'})
     if(data !== null) {
       setFromAmount(1)
-      setToAmount(data.rates[toValue])
-      setConversionRate(data.rates[toValue])
+      setToAmount(data.rates[toOption])
+      setConversionRate(data.rates[toOption])
     }
-  }, [])
+  }, []);
 
   const handleToAmount = (value) => setToAmount(value);
 
@@ -75,10 +84,10 @@ const MainScreen = () => {
             <View style={tw`flex-row my-8 mx-10 justify-between items-end`}>
               <DropDownPicker
                 open={fromOpen}
-                value={fromValue}
+                value={fromOption}
                 items={items}
                 setOpen={setFromOpen}
-                setValue={setFromValue}
+                setValue={setFromOption}
                 setItems={setItems}
                 containerStyle={tw`w-25 h-10`}
                 labelStyle={tw`p-0 m-0 `}
@@ -114,17 +123,17 @@ const MainScreen = () => {
             <View style={tw`flex-row my-8 mx-10 justify-between items-end`}>
               <DropDownPicker
                 open={toOpen}
-                value={toValue}
+                value={toOption}
                 items={items}
                 setOpen={setToOpen}
-                setValue={setToValue}
+                setValue={setToOption}
                 setItems={setItems}
                 containerStyle={tw`w-25 h-10`}
                 labelStyle={tw`p-0 m-0`}
                 textStyle={tw`p-0 m-0`}
               />
               <CustomInput
-                value={toAmount}
+                value={toAmount} 
                 onChangeText={handleToAmount}
                 disabled="true"
                 style={tw`text-white text-xl border-b border-sky-300`}
