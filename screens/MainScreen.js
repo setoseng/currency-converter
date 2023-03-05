@@ -31,26 +31,21 @@ const requestOptions = {
 
 const MainScreen = () => {
   const { getLatestData, data } = useContext(CurrencyContext);
-  const [currencyOptions, setCurrencyOptions] = useState([])
   const [isInputting, setIsInputting] = useState(false);
   const [toOpen, setToOpen] = useState(false);
-  const [toOption, setToOption] = useState('VND');
-  const [toCurrency, setToCurrency] = useState()
-  const [exchangeRate, setExchangeRate] = useState()
+  const [toCurrency, setToCurrency] = useState();
+  const [exchangeRate, setExchangeRate] = useState();
   const [fromOpen, setFromOpen] = useState(false);
-  const [fromOption, setFromOption] = useState('USD');
-  const [fromCurrency, setFromCurrency] = useState()
+  const [fromCurrency, setFromCurrency] = useState();
   const [isRequesting, setisRequesting] = useState(false);
-  const [amount, setAmount] = useState(1)
-  const [amountInFromCurrency, setAmountInFromCurrency] = useState(true)
-  
-  const [items, setItems] = useState([
-    {label: 'USD', value: 'USD'},
-    {label: 'VND', value: 'VND'}
-  ]);
+  const [amount, setAmount] = useState(1);
+  const [amountInFromCurrency, setAmountInFromCurrency] = useState(true);
+  const [toFormatted, setToFormatted] = useState();
+  const [fromFormatted, setFromFormatted] = useState();
 
+  const [pickerItems, setPickerItems] = useState([]);
 
-  let toAmount, fromAmount
+  let toAmount, fromAmount;
   if (amountInFromCurrency) {
     fromAmount = amount
     toAmount = amount * exchangeRate
@@ -59,31 +54,72 @@ const MainScreen = () => {
     fromAmount = amount / exchangeRate
   }
 
-  useEffect(() => {
-    fetch("https://api.apilayer.com/exchangerates_data/latest?&base=USD", requestOptions)
-      .then(res => res.json())
-      .then(data => {
-        const firstCurrency = Object.keys(data.rates)[0]
-        setCurrencyOptions([data.base, ...Object.keys(data.rates)]);
-        setFromCurrency(data.base);
-        setToCurrency(firstCurrency);
-        setExchangeRate(data.rates[firstCurrency]);
+  const buildPickerItems = () => {
+    let pickerItem = []
+    Object.keys(data.rates).map(item => {
+      pickerItem.push({
+        label: item,
+        value: item,
       })
+      setPickerItems(pickerItem, pickerItems)
+    })
+  }
+
+  useEffect(() => {
+    if(data === null || data === undefined){
+      getLatestData();
+    }
+
+    if(pickerItems === undefined || pickerItems.length == 0) {
+      buildPickerItems();
+    }
+
+    const firstCurrency = Object.keys(data.rates)[0];
+    const defaultToCurrency = 'VND'
+    setFromCurrency(data.base);
+    setToCurrency(defaultToCurrency);
+    setExchangeRate(data.rates[defaultToCurrency]);
   }, []);
 
   useEffect(() => {
     if (fromCurrency != null && toCurrency != null) {
-      fetch(`https://api.apilayer.com/exchangerates_data/convert?to=${toCurrency}&from=${fromCurrency}&amount=${amount}`, requestOptions)
-        .then(res => res.json())
-        .then(data => {
-          setExchangeRate(data.info.rate);
-        })
+      const fromRates = data.rates[fromCurrency];
+      const toRates = data.rates[toCurrency];
+      setExchangeRate(toRates / fromRates)
     }
   }, [fromCurrency, toCurrency]);
 
+  useEffect(() => {
+    if(fromCurrency) {
+      setFromFormatted(new Intl.NumberFormat('en-IN', {
+       style: 'currency',
+       currency: fromCurrency,
+       maximumFractionDigits: 3,
+      }).format(fromAmount));
+    } else {
+      setFromFormatted(new Intl.NumberFormat('en-IN', {
+       style: 'currency',
+       currency: 'USD',
+       maximumFractionDigits: 3,
+      }).format(fromAmount));
+    }
+    
+  },[fromAmount])
+
+  useEffect(() => {
+    if(toCurrency) {
+      setToFormatted(new Intl.NumberFormat('en-IN', {
+       style: 'currency',
+       currency: toCurrency,
+       maximumFractionDigits: 3,
+      }).format(toAmount));
+    }
+    
+  },[toAmount])
+
   const handleFromAmount = (value) => {
-    setAmount(value)
-    setAmountInFromCurrency(true)
+    setAmount(value);
+    setAmountInFromCurrency(true);
   };
 
   const handleToAmount = (value) => {
@@ -99,15 +135,15 @@ const MainScreen = () => {
         style={tw`flex-1`}
       >
         <View style={tw`flex-1 bg-transparent`}>
-          <View style={tw`flex-2 justify-end`}>
+          <View style={tw`flex-2 justify-center`}>
             <View style={tw`flex-row my-8 mx-10 justify-between items-end`}>
               <DropDownPicker
                 open={fromOpen}
-                value={currencyOptions}
-                items={items}
+                value={fromCurrency}
+                items={pickerItems}
                 setOpen={setFromOpen}
-                setValue={setFromOption}
-                setItems={setItems}
+                setValue={setFromCurrency}
+                setItems={setPickerItems}
                 containerStyle={tw`w-25 h-10`}
                 labelStyle={tw`p-0 m-0 `}
                 textStyle={tw`p-0 m-0`}
@@ -116,13 +152,18 @@ const MainScreen = () => {
                 value={fromAmount}
                 onChangeText={handleFromAmount}
                 style={tw`text-white text-lg border-b border-sky-300`}
-                placeholder={fromAmount.toString()}
-                placeholderTextColor={'#e0e0e0'}
+                placeholder={fromFormatted}
+                placeholderTextColor={'#E6E6E6'}
                 keyboardType='number-pad'
                 returnKeyType='done'
                 containerStyle={tw`w-35`}
-                onPressIn={() => setIsInputting(true)}
-                onEndEditing={() => setIsInputting(false)}
+                onPressIn={() => {
+                  setIsInputting(true)
+                  
+                }}
+                onEndEditing={() => {
+                  setIsInputting(false);
+                }}
               />
             </View>
             <View style={tw`flex-row my-8 mx-10 justify-between items-center`}>
@@ -133,8 +174,9 @@ const MainScreen = () => {
                 orientation="horizontal"
               />
               <Icon
-                name='arrow-v'
-                type='fontisto'
+                name='swap-vertical-sharp'
+                type='ionicon'
+                iconStyle={tw`text-3xl`}
                 containerStyle={tw`border border-white rounded-full w-10 h-10 justify-center bg-white`}
                 color='#21CEFF'
               />
@@ -142,39 +184,34 @@ const MainScreen = () => {
             <View style={tw`flex-row my-8 mx-10 justify-between items-end`}>
               <DropDownPicker
                 open={toOpen}
-                value={currencyOptions}
-                items={items}
+                value={toCurrency}
+                items={pickerItems}
                 setOpen={setToOpen}
-                setValue={setToOption}
-                setItems={setItems}
+                setValue={setToCurrency}
+                setItems={setPickerItems}
                 containerStyle={tw`w-25 h-10`}
                 labelStyle={tw`p-0 m-0`}
                 textStyle={tw`p-0 m-0`}
               />
               <CustomInput
-                value={toAmount} 
+                value={toAmount}
                 onChangeText={handleToAmount}
                 disabled="true"
                 style={tw`text-white text-xl border-b border-sky-300`}
-                placeholder={toAmount.toString()}
-                placeholderTextColor={'#e0e0e0'}
+                placeholder={toFormatted}
+                placeholderTextColor={'#E6E6E6'}
                 keyboardType='number-pad'
                 returnKeyType='done'
                 containerStyle={tw`w-35`}
-                onPressIn={() => setIsInputting(true)}
-                onEndEditing={() => setIsInputting(false)}
+                onPressIn={() => {
+                  setIsInputting(true)
+                }}
+                onEndEditing={() => {
+                  setIsInputting(false);
+                }}
               />
             </View>
           </View>
-          {/* <Button
-            title={"Convert"}
-            textStyle={tw`text-white`}
-            containerStyle={tw`flex-1 mx-auto mt-10`}
-            buttonStyle={tw`w-50 h-15 rounded-md`}
-            onPress={requestCurrencyData}
-            loading={isRequesting}
-            disabled={isRequesting}
-          /> */}
           { isInputting && 
             <ImageBackground
               source={overlayImg}
