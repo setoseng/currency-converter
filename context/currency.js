@@ -36,6 +36,7 @@ export const CurrencyProvider = ({ children }) => {
   }, [])
 
   const getLatestData = async (base) => {
+    if(base == undefined || base == null) base = 'USD';
     await fetch(`https://api.apilayer.com/exchangerates_data/latest?base=${base}`, requestOptions)
     .then(response => response.text())
     .then(result => {

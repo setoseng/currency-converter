@@ -1,7 +1,8 @@
 import * as React from 'react'
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { Image } from '@rneui/base';
+
+import DataPullButton from './components/DataPullButton';
 
 import HomeScreen from './screens/HomeScreen';
 import MainScreen from './screens/MainScreen';
@@ -39,6 +40,7 @@ export default function App() {
                 color: '#FFF'
               },
               headerTintColor: '#FFF',
+              headerRight: () => <DataPullButton />,
             }}
           />
         </Stack.Navigator>

@@ -20,9 +20,6 @@ import { CurrencyContext } from '../context/currency';
 const myHeaders = new Headers();
 myHeaders.append("apikey", "Y8EjkMaRIbyKPNLNTUR3huMYNwhcc1Xq");
 
-const API_URL = `Y8EjkMaRIbyKPNLNTUR3huMYNwhcc1Xq`;
-const BASE_URL = 'https://api.exchangeratesapi.io/latest';
-
 const requestOptions = {
   method: 'GET',
   redirect: 'follow',
@@ -168,18 +165,18 @@ const MainScreen = () => {
             </View>
             <View style={tw`flex-row my-8 mx-10 justify-between items-center`}>
               <Divider
-                style={tw`w-80% my-5`}
+                style={tw`w-100% my-5`}
                 color="#FFF"
                 width={1}
                 orientation="horizontal"
               />
-              <Icon
+              {/* <Icon
                 name='swap-vertical-sharp'
                 type='ionicon'
                 iconStyle={tw`text-3xl`}
                 containerStyle={tw`border border-white rounded-full w-10 h-10 justify-center bg-white`}
                 color='#21CEFF'
-              />
+              /> */}
             </View>
             <View style={tw`flex-row my-8 mx-10 justify-between items-end`}>
               <DropDownPicker
